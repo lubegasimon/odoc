@@ -19,14 +19,16 @@
 module Paths = Odoc_model.Paths
 
 
-
+(** An empty document comment *)
 val empty : Odoc_model.Comment.docs
 
+(** A document comment associated to element *)
 val attached :
   Paths.Identifier.LabelParent.t ->
   Parsetree.attributes ->
     Odoc_model.Comment.docs
 
+(* Entire .mld files *)
 val page :
   Paths.Identifier.LabelParent.t ->
   Location.t ->
@@ -39,11 +41,13 @@ val page :
     This function is meant to be used to read arbitrary files containing text in
     the ocamldoc syntax. *)
 
+(** A document comment not associated to any element *)
 val standalone :
   Paths.Identifier.LabelParent.t ->
   Parsetree.attribute ->
     Odoc_model.Comment.docs_or_stop option
 
+(** Document comments not associated to any element *)
 val standalone_multiple :
   Paths.Identifier.LabelParent.t ->
   Parsetree.attributes ->
