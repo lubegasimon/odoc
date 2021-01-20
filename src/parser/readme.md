@@ -19,7 +19,7 @@ for the lexer and parser (in `make_parser` function).
 The semantics by which the parser consumes the tokens to produce richer tree-like data structure called abstract syntax tree (module `Ast`)
 by the lexing phase in handled in module `Semantics`.
 
-The errors encountered while parsing can be found in module `Parse_error`.
+The module `Parse_error` defines error messages for error that occur during parsing.
 
 Module `Reference.parse` is a whole new parser because it defines own rules for textual data parsing.
 
