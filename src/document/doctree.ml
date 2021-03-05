@@ -47,14 +47,26 @@ end
 module Toc : sig
   type t = one list
 
-  and one = { url : Url.t; text : Inline.t; children : t }
+  and one = {
+    url : Url.t;
+    text : Inline.t;
+    children : t; (* ; p_style : paragraph_style option; *)
+                  (*@ heading*)
+  }
 
   val compute :
     Url.Path.t -> on_sub:(Include.status -> bool) -> Item.t list -> t
 end = struct
   type t = one list
 
-  and one = { url : Url.t; text : Inline.t; children : t }
+  and one = {
+    url : Url.t;
+    text : Inline.t;
+    children : t;
+        (* ;p_style : paragraph_style option; *)
+        (*@ heading*)
+        (*@ heading*)
+  }
 
   let classify ~on_sub (i : Item.t) : _ Rewire.action =
     match i with
@@ -62,11 +74,25 @@ end = struct
     | Include { content = { status; content; _ }; _ } ->
         if on_sub status then Rec content else Skip
     | Heading { label = None; _ } -> Skip
-    | Heading { label = Some label; level; title } ->
-        Heading ((label, title), level)
+    | Heading
+        {
+          label = Some label;
+          level;
+          title (* ; p_style = Some p_style  *)
+                (*@ heading*);
+        } ->
+        Heading ((label, title (* , p_style *)
+                               (*@ heading*)), level)
 
-  let node mkurl (anchor, text) children =
-    { url = mkurl anchor; text; children }
+  (* | Heading { label = Some label; level; title
+     (* ; p_style = None  *) (*@ heading*)
+     } ->
+         Heading ((label, title
+         (* , `Left *) (*@ heading*)
+         ), level) *)
+
+  let node mkurl (anchor, text (* , p_style *)) children =
+    { url = mkurl anchor; text; children (* ; p_style = Some p_style  *) }
 
   let compute page ~on_sub t =
     let mkurl anchor = { Url.Anchor.page; anchor; kind = "page" } in
@@ -150,9 +176,11 @@ module Shift = struct
   and walk_item ~on_sub shift_state (l : Item.t list) =
     match l with
     | [] -> []
-    | Heading { label; level; title } :: rest ->
+    | Heading { label; level; title (* ; p_style  *)
+                                    (*@ heading*) } :: rest ->
         let shift_state, level = shift shift_state level in
-        Item.Heading { label; level; title }
+        Item.Heading { label; level; title (* ; p_style  *)
+                                           (*@ heading*) }
         :: walk_item ~on_sub shift_state rest
     | Include subp :: rest ->
         let content = include_ ~on_sub shift_state subp.content in

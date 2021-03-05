@@ -190,7 +190,9 @@ let any_in_comment d name =
     match xs with
     | elt :: rest -> (
         match elt.Odoc_model.Location_.value with
-        | `Heading (_, label, _) when Ident.Name.label label = name ->
+        | `Heading (_, label, _ (* , _ *)
+                                (*@ heading*))
+          when Ident.Name.label label = name ->
             Some (`FLabel label)
         | _ -> inner rest )
     | [] -> None

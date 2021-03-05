@@ -593,7 +593,8 @@ let floatarray_decl =
   let doc =
     [
       `Paragraph
-        ( words [ "This"; "type"; "is"; "used"; "to"; "implement"; "the" ]
+        ( None,
+          words [ "This"; "type"; "is"; "used"; "to"; "implement"; "the" ]
           @ [
               `Space;
               `Reference
@@ -604,7 +605,7 @@ let floatarray_decl =
             ]
           @ words
               [ "module."; "It"; "should"; "not"; "be"; "used"; "directly." ]
-        |> List.map (Location_.at predefined_location) );
+          |> List.map (Location_.at predefined_location) );
     ]
     |> List.map (Location_.at predefined_location)
   in

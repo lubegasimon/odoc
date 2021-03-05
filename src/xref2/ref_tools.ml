@@ -541,7 +541,12 @@ let rec resolve_label_parent_reference :
           List.fold_right
             (fun element l ->
               match element.Odoc_model.Location_.value with
-              | `Heading (_, (`Label (_, name) as x), _nested_elements) ->
+              | `Heading
+                  ( _,
+                    (`Label (_, name) as x),
+                    _nested_elements
+                  (* , _ *)
+                  (*@ heading*) ) ->
                   (LabelName.to_string name, x) :: l
               | _ -> l)
             p.Odoc_model.Lang.Page.content []

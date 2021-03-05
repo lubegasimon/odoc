@@ -23,7 +23,6 @@ The following describes the changes between what odoc understands and what is in
 - Odoc handles ambiguous documentation comments as the compiler does (see {{:https://caml.inria.fr/pub/docs/manual-ocaml/doccomments.html}here})
   rather than treating them as the ocamldoc manual suggests.
 - Odoc does not ignore tags where they don't make sense (e.g. [@param] tags on instance variables are rendered) ({{:https://github.com/ocaml/odoc/issues/575}github issue})
-- {{:https://caml.inria.fr/pub/docs/manual-ocaml/ocamldoc.html#ss:ocamldoc-formatting}Alignment elements} are not handled ([{C text}], [{L text}] and [{R text}]) ({{:https://github.com/ocaml/odoc/issues/541}github issue})
 - Odoc does not recognise {{:https://caml.inria.fr/pub/docs/manual-ocaml/ocamldoc.html#sss:ocamldoc-html-tags}html tags embedded in comments} ({{:https://github.com/ocaml/odoc/issues/576}github issue})
 - [{!indexlist}] is not supported ({{:https://github.com/ocaml/odoc/issues/577}github issue})
 - When rendering [{!modules:...}] lists, the first paragraph is used instead of

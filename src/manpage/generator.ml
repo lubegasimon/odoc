@@ -312,7 +312,8 @@ let rec block (l : Block.t) =
       let continue r = if r = [] then noop else vspace ++ block r in
       match b.desc with
       | Inline i -> inline i ++ continue rest
-      | Paragraph i -> inline i ++ continue rest
+      | Paragraph (_, i) ->
+          inline i ++ continue rest
       | List (list_typ, l) ->
           let f n b =
             let bullet =
@@ -355,7 +356,8 @@ let next_heading, reset_heading =
   and reset () = heading_stack := [] in
   (next, reset)
 
-let heading ~nested { Heading.label = _; level; title } =
+let heading ~nested { Heading.label = _; level; title (* ; _  *)
+                                                      (*@ heading*) } =
   let prefix =
     if level = 0 then noop
     else if level <= 3 then str "%s " (next_heading level)

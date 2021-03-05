@@ -24,8 +24,10 @@ open O.Infix
 (* TODO: Title formatting should be a renderer decision *)
 let format_title kind name =
   let mk title =
-    let level = 0 and label = None in
-    [ Item.Heading { level; label; title } ]
+    let level = 0 and label = None (* and p_style = None  *)
+                                   (*@ heading*) in
+    [ Item.Heading { level; label; title (* ; p_style  *)
+                                         (*@ heading*) } ]
   in
   let prefix s = mk (inline (Text (s ^ " ")) :: O.code (O.txt name)) in
   match kind with
@@ -820,8 +822,8 @@ module Make (Syntax : SYNTAX) = struct
         | [] -> List.rev acc
         | element :: input_comment -> (
             match element.Location.value with
-            | `Heading (level, label, content) ->
-                let h = `Heading (level, label, content) in
+            | `Heading (level, label, content (* , p_style *)) ->
+                let h = `Heading (level, label, content (* , p_style *)) in
                 let item = Comment.heading h in
                 loop input_comment (item :: acc)
             | _ ->
@@ -1199,7 +1201,10 @@ module Make (Syntax : SYNTAX) = struct
               {
                 label = Some "parameters";
                 level = 1;
-                title = [ inline @@ Text "Parameters" ];
+                title =
+                  [ inline @@ Text "Parameters" ]
+                  (* ;p_style = None TODO: Not sure!; *)
+                  (*@ heading*);
               }
             :: params
           and content =
@@ -1207,7 +1212,10 @@ module Make (Syntax : SYNTAX) = struct
               {
                 label = Some "signature";
                 level = 1;
-                title = [ inline @@ Text "Signature" ];
+                title =
+                  [ inline @@ Text "Signature" ]
+                  (* ; p_style = None TODO: Not sure!; *)
+                  (*@ heading*);
               }
             :: content
           in

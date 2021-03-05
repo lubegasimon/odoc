@@ -14,44 +14,50 @@ Check that references are resolved:
   $ odoc_print a.odocl | jq '.content.Module.items[0].Type[1].doc[0]'
   {
     "`Paragraph": [
-      {
-        "`Reference": [
-          {
-            "`Resolved": {
-              "`Identifier": {
-                "`Root": [
-                  {
-                    "`RootPage": "test"
-                  },
-                  "B"
-                ]
+      "None",
+      [
+        {
+          "`Reference": [
+            {
+              "`Resolved": {
+                "`Identifier": {
+                  "`Root": [
+                    {
+                      "`RootPage": "test"
+                    },
+                    "B"
+                  ]
+                }
               }
-            }
-          },
-          []
-        ]
-      }
+            },
+            []
+          ]
+        }
+      ]
     ]
   }
   $ odoc_print b.odocl | jq '.content.Module.items[0].Type[1].doc[0]'
   {
     "`Paragraph": [
-      {
-        "`Reference": [
-          {
-            "`Resolved": {
-              "`Identifier": {
-                "`Root": [
-                  {
-                    "`RootPage": "test"
-                  },
-                  "A"
-                ]
+      "None",
+      [
+        {
+          "`Reference": [
+            {
+              "`Resolved": {
+                "`Identifier": {
+                  "`Root": [
+                    {
+                      "`RootPage": "test"
+                    },
+                    "A"
+                  ]
+                }
               }
-            }
-          },
-          []
-        ]
-      }
+            },
+            []
+          ]
+        }
+      ]
     ]
   }

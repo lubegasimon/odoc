@@ -73,6 +73,11 @@ let style = function
   | `Subscript -> Raw.subscript
   | `Superscript -> Raw.superscript
 
+let paragraph_style = function
+  | `Left -> Raw.flushleft
+  | `Center -> Raw.center
+  | `Right -> Raw.flushright
+
 let gen_hyperref pp r ppf =
   match (r.target, r.text) with
   | "", None -> ()
@@ -126,7 +131,7 @@ let elt_size (x : elt) =
   | Code_fragment _ | Tag _ | Break _ | Ligaturable _ ->
       Small
   | List _ | Section _ | Verbatim _ | Raw _ | Code_block _ | Indented _
-  | Description _ ->
+  | Description _ | Paragraph_style _ ->
       Large
   | Table _ -> Huge
 
@@ -180,6 +185,9 @@ let rec pp_elt ppf = function
   | Internal_ref r -> hyperref ppf r
   | External_ref (l, x) -> href ppf (l, x)
   | Style (s, x) -> style s pp ppf x
+  | Paragraph_style (p_style, x) ->
+      (paragraph_style p_style ppf) "";
+      pp ppf x (*TODO: Not sure!*)
   | Code_block [] -> ()
   | Code_block x -> Raw.code_block pp ppf x
   | Inlined_code x -> Raw.inline_code pp ppf x
@@ -306,12 +314,19 @@ let non_empty_code_fragment c =
   let s = source (inline ~verbatim:false ~in_source:true) c in
   match s with [] -> [] | _ :: _ as l -> [ Code_fragment l ]
 
+let paragraph_style (ps, i) =
+  match ps with
+  | Some p_style ->
+      [ Paragraph_style (p_style, inline ~in_source:false ~verbatim:false i) ]
+  | None ->
+      [ Paragraph_style (`Left, inline ~in_source:false ~verbatim:false i) ]
+
 let rec block ~in_source (l : Block.t) =
   let one (t : Block.one) =
     match t.desc with
     | Inline i -> inline ~verbatim:false ~in_source:false i
-    | Paragraph i ->
-        inline ~in_source:false ~verbatim:false i
+    | Paragraph (p_style, i) ->
+        paragraph_style (p_style, i)
         @ if in_source then [] else [ Break Paragraph ]
     | List (typ, l) ->
         [ List { typ; items = List.map (block ~in_source:false) l } ]

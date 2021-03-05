@@ -73,6 +73,11 @@ and styled style ~emph_level =
   | `Superscript -> (emph_level, Html.sup ~a:[])
   | `Subscript -> (emph_level, Html.sub ~a:[])
 
+and paragraph_styled = function
+  | `Left -> [ Html.a_style "text-align: left" ]
+  | `Center -> [ Html.a_style "text-align: center" ]
+  | `Right -> [ Html.a_style "text-align: right" ]
+
 let rec internallink ~emph_level ~resolve ?(a = []) (t : InternalLink.t) =
   match t with
   | Resolved (uri, content) ->
@@ -169,7 +174,13 @@ let rec block ~resolve (l : Block.t) : flow Html.elt list =
     | Inline i ->
         if a = [] then as_flow @@ inline ~resolve i
         else [ Html.span ~a (inline ~resolve i) ]
-    | Paragraph i -> [ Html.p ~a (inline ~resolve i) ]
+    | Paragraph (ps, i) -> (
+        match ps with
+        | Some ps ->
+            let p_style = paragraph_styled ps in
+            let a = [ Html.a_class [ "alignment" ] ] @ p_style in
+            [ Html.p ~a (inline ~resolve i) ]
+        | None -> [ Html.p ~a (inline ~resolve i) ] )
     | List (typ, l) ->
         let mk = match typ with Ordered -> Html.ol | Unordered -> Html.ul in
         [ mk ~a (List.map (fun x -> Html.li (block ~resolve x)) l) ]
@@ -327,7 +338,8 @@ module Toc = struct
   open Odoc_document.Doctree
 
   let render_toc ~resolve (toc : Toc.t) =
-    let rec section { Toc.url; text; children } =
+    let rec section { Toc.url; text; children (* ; _  *)
+                                              (*@ heading*) } =
       let text = inline_nolink text in
       let text =
         ( text

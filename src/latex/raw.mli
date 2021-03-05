@@ -27,6 +27,12 @@ val label : string Fmt.t
 
 val verbatim : string Fmt.t
 
+val flushleft : string Fmt.t
+
+val center : string Fmt.t
+
+val flushright : string Fmt.t
+
 val pageref_star : string Fmt.t
 
 val hyperref : string -> 'a t

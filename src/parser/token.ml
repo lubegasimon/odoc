@@ -51,7 +51,8 @@ type t =
     string
   | `Code_span of string
   | `Raw_markup of string option * string
-  | `Begin_style of style
+  | `Begin_style of Odoc_model.Comment.style
+  | `Begin_paragraph_style of Odoc_model.Comment.paragraph_style
   | (* Other inline element markup. *)
     `Simple_reference of string
   | `Begin_reference_with_replacement_text of string
@@ -70,6 +71,9 @@ type t =
   | tag ]
 
 let print : [< t ] -> string = function
+  | `Begin_paragraph_style `Left -> "'{L'"
+  | `Begin_paragraph_style `Center -> "'{C'"
+  | `Begin_paragraph_style `Right -> "'{R'"
   | `Begin_style `Bold -> "'{b'"
   | `Begin_style `Italic -> "'{i'"
   | `Begin_style `Emphasis -> "'{e'"
@@ -107,6 +111,9 @@ let describe : [< t | `Comment ] -> string = function
   | `Word w -> Printf.sprintf "'%s'" w
   | `Code_span _ -> "'[...]' (code)"
   | `Raw_markup _ -> "'{%...%}' (raw markup)"
+  | `Begin_paragraph_style `Left -> "'{L ...}' (left alignment)"
+  | `Begin_paragraph_style `Center -> "'{C ...}' (center alignment)"
+  | `Begin_paragraph_style `Right -> "'{R ...}' (right alignment)"
   | `Begin_style `Bold -> "'{b ...}' (boldface text)"
   | `Begin_style `Italic -> "'{i ...}' (italic text)"
   | `Begin_style `Emphasis -> "'{e ...}' (emphasized text)"

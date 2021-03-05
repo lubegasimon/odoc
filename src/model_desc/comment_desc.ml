@@ -17,13 +17,16 @@ type general_inline_element =
 and general_link_content = general_inline_element with_location list
 
 type general_block_element =
-  [ `Paragraph of general_link_content
+  [ `Paragraph of paragraph_style option * general_link_content
   | `Code_block of string
   | `Verbatim of string
   | `Modules of Comment.module_reference list
   | `List of
     [ `Unordered | `Ordered ] * general_block_element with_location list list
-  | `Heading of heading_level * Paths.Identifier.Label.t * general_link_content
+  | `Heading of
+    heading_level * Paths.Identifier.Label.t * general_link_content
+    (* * paragraph_style option *)
+    (*@ heading*)
   | `Tag of general_tag ]
 
 and general_tag =
@@ -89,18 +92,28 @@ let rec block_element : general_block_element t =
     Variant
       (function `Unordered -> C0 "`Unordered" | `Ordered -> C0 "`Ordered")
   in
+  let alignment_kind =
+    Option
+      (Variant
+         (function
+         | `Left -> C0 "`Left" | `Center -> C0 "`Center" | `Right -> C0 "`Right"))
+  in
   Variant
     (function
-    | `Paragraph x -> C ("`Paragraph", x, link_content)
+    | `Paragraph (p_style, x) ->
+        C ("`Paragraph", (p_style, x), Pair (alignment_kind, link_content))
     | `Code_block x -> C ("`Code_block", x, string)
     | `Verbatim x -> C ("`Verbatim", x, string)
     | `Modules x -> C ("`Modules", x, List module_reference)
     | `List (x1, x2) ->
         C ("`List", (x1, (x2 :> general_docs list)), Pair (list_kind, List docs))
-    | `Heading (x1, x2, x3) ->
+    | `Heading (x1, x2, x3 (* , ps *)
+                           (*@ heading*)) ->
         C
           ( "`Heading",
-            (x1, x2, x3),
+            (x1, x2, x3 (* , ps *)),
+            (* Fourfold (heading_level, identifier, link_content, alignment_kind) *)
+            (*@ heading*)
             Triple (heading_level, identifier, link_content) )
     | `Tag x -> C ("`Tag", x, tag))
 

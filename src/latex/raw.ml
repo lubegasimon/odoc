@@ -101,6 +101,12 @@ let inline_code pp = create "ocamlinlinecode" pp
 
 let verbatim ppf x = env "verbatim" Fmt.string ppf x
 
+let flushleft ppf x = env "flushleft" Fmt.string ppf x
+
+let center ppf x = env "center" Fmt.string ppf x
+
+let flushright ppf x = env "flushright" Fmt.string ppf x
+
 let pageref_star x = create "pageref*" Escape.ref x
 
 let hyperref s = create "hyperref" ~options:[ bind Escape.ref s ]
