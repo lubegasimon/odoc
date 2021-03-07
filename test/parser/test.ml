@@ -690,12 +690,15 @@ let tests : test_suite list =
       ] );
     ( "reference-component-kind",
       [
+        t "no-kind-with-quotes" "{!\"foo\".\"bar\"}";
         t "no-kind" "{!foo}";
         t "class" "{!class-foo}";
         t "class-type" "{!class-type-foo}";
         t "class-type-alt" "{!classtype-foo}";
         t "constructor" "{!constructor-Foo}";
         t "constructor-alt" "{!const-Foo}";
+        t "dash-in-page-name" "{!page-\"foo-bar\"}";
+        t "dot-and-dash-in-page-name" "{!page-\"foo-bar.v0.0.1\"}";
         t "exception" "{!exception-Foo}";
         t "exception-alt" "{!exn-Foo}";
         t "extension" "{!extension-Foo}";
