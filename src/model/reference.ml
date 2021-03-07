@@ -128,6 +128,41 @@ let tokenize location s =
         scan_identifier started_at
           (open_parenthesis_count - 1)
           (index - 1) tokens
+    | '"' ->
+        (* Note: Don't worry about the seemingly contradictions about variable names usage particularly
+           in this pattern branch, I'll explain.
+           Ideally, we are calculating the identifier from String operations which are independent on how
+           the parser operates; That is to say the parser parses from right to left (see immediate comment
+           above the tokenize function), where as, for our case of calculating the identifier, we consider
+           left to right. We do this specially to keep the identifier (page name in this case) intact.
+
+           However, the if ... else block operations, we return to then concept on how the parser works,
+           because of the scan_kind and scan_identifier calls that are attached to the parser.
+        *)
+        let f_occurence = String.index s '"' in
+        let l_occurence = String.rindex_from s f_occurence '"' in
+        let off_set = f_occurence + 1 in
+        let length = started_at - off_set - 1 in
+        let identifier = String.trim (String.sub s off_set length) in
+
+        (* The if ... then conditions specially handles cases like "foo"."bar",and
+            it should be checked first, otherwise, and exception will be thrown
+
+           However, I guarantee that this won't work expectedly for a case like
+           {!"Foo"."Bar".section-bar}
+        *)
+        if s.[0] = '"' && s.[f_occurence] = '"' then
+          let identifiers = String.split_on_char '.' s in
+          List.map
+            (fun ident ->
+              let ident =
+                String.trim (String.sub ident 1 (String.length ident - 2))
+              in
+              (None, ident, location))
+            identifiers
+        else
+          scan_kind identifier location (f_occurence - 1) (l_occurence - 1)
+            tokens
     | _ -> scan_identifier started_at open_parenthesis_count (index - 1) tokens
   and identifier_ended started_at index =
     let offset = index + 1 in
