@@ -128,41 +128,33 @@ let tokenize location s =
         scan_identifier started_at
           (open_parenthesis_count - 1)
           (index - 1) tokens
-    | '"' ->
-        (* Note: Don't worry about the seemingly contradictions about variable names usage particularly
-           in this pattern branch, I'll explain.
-           Ideally, we are calculating the identifier from String operations which are independent on how
-           the parser operates; That is to say the parser parses from right to left (see immediate comment
-           above the tokenize function), where as, for our case of calculating the identifier, we consider
-           left to right. We do this specially to keep the identifier (page name in this case) intact.
+    | '"' when open_parenthesis_count = 0 ->
+        let f_occurence = index in
+        let l_occurence = String.index_from s f_occurence '"' in
+        let offset = l_occurence in
+        let length =
+          (* The reason I have this if ... else condition is because at some points like `page-"p-foo".label-bar`,
+            we may want to use string length as started_at so as to calculate  the length, which we shall later use to
+            calculate the identifier; and at cases like `page-"p-bar", we instead want to use
+            first occurence of a quote as started_at *)
 
-           However, the if ... else block operations, we return to then concept on how the parser works,
-           because of the scan_kind and scan_identifier calls that are attached to the parser.
-        *)
-        let f_occurence = String.index s '"' in
-        let l_occurence = String.rindex_from s f_occurence '"' in
-        let off_set = f_occurence + 1 in
-        let length = started_at - off_set - 1 in
-        let identifier = String.trim (String.sub s off_set length) in
-
-        (* The if ... then conditions specially handles cases like "foo"."bar",and
-            it should be checked first, otherwise, and exception will be thrown
-
-           However, I guarantee that this won't work expectedly for a case like
-           {!"Foo"."Bar".section-bar}
-        *)
-        if s.[0] = '"' && s.[f_occurence] = '"' then
-          let identifiers = String.split_on_char '.' s in
-          List.map
-            (fun ident ->
-              let ident =
-                String.trim (String.sub ident 1 (String.length ident - 2))
-              in
-              (None, ident, location))
-            identifiers
-        else
-          scan_kind identifier location (f_occurence - 1) (l_occurence - 1)
-            tokens
+          (* The reason I'm calculate the idenfier explicity, rather that calling identifier_ended
+          is because I want to keep the identifier intact rather than let the parser determine in for me,
+          for it has not yet know how to handle quotes *)
+          
+          if index = String.length s - 1 then started_at - offset
+          else
+            let new_started_at = started_at - index + 1 in
+            new_started_at - offset
+        in
+        let identifier = String.trim (String.sub s offset length) in
+        if s.[l_occurence - 1] = '-' then
+          (* At this point, I'm not sure what to use as started_at. I think we need to check by
+          length of the string
+          *)
+          scan_kind identifier location started_at (l_occurence - 1) tokens
+          (* this else part is not reasonable for now*)
+        else scan_kind identifier location started_at index tokens
     | _ -> scan_identifier started_at open_parenthesis_count (index - 1) tokens
   and identifier_ended started_at index =
     let offset = index + 1 in

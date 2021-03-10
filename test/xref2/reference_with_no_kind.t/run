@@ -1,0 +1,28 @@
+# References to pages and items in pages
+
+  $ compile foo.bar.mld good_references.mli bad_references.mli
+
+Every references in `Good_references` should resolve:
+
+  $ jq_scan_references() { jq -c '.. | .["`Reference"]? | select(.) | .[0]'; }
+
+  $ odoc_print good_references.odocl | jq_scan_references
+  {"`Dot":[{"`Root":["\"foo\"","`TUnknown"]},"\"bar\""]}
+  {"`Dot":[{"`Dot":[{"`Root":["\"foo\"","`TUnknown"]},"\"bar\""]},"P1"]}
+  {"`Dot":[{"`Dot":[{"`Root":["\"foo\"","`TUnknown"]},"\"bar\""]},"P2"]}
+  {"`Dot":[{"`Dot":[{"`Root":["\"foo\"","`TUnknown"]},"\"bar\""]},"section-P1"]}
+
+
+Every references in `Bad_references` should not:
+
+  $ odoc_print bad_references.odocl | jq_scan_references
+  {"`Root":["\"not_found\"","`TUnknown"]}
+  {"`Dot":[{"`Dot":[{"`Root":["\"foo\"","`TUnknown"]},"\"bar\""]},"section-not_found"]}
+
+
+Every references in `foo.bar` should resolve:
+
+  $ odoc_print page-foo.bar.odocl | jq_scan_references
+  {"`Root":["M","`TUnknown"]}
+  {"`Dot":[{"`Root":["M","`TUnknown"]},"t"]}
+
