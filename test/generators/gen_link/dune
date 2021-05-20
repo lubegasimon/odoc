@@ -2,4 +2,4 @@
  (name gen_link)
  (libraries sexplib0 fpath)
  (enabled_if
-  (>= %{ocaml_version} 4.04.0)))
+  (>= %{ocaml_version} 4.08.0)))
