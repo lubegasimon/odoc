@@ -32,3 +32,8 @@
  (libraries sexplib0 gen_backend)
  (enabled_if
   (>= %{ocaml_version} 4.04)))
+
+(env
+ (_
+  (binaries
+   (../xref2/compile.exe as compile))))
