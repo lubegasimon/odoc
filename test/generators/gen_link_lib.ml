@@ -11,20 +11,16 @@ let read_file_from_dir dir =
 
 let cases = Fpath.v "cases"
 
-let all_compile_files = read_file_from_dir (Fpath.filename cases)
+let cases_paths = read_file_from_dir (Fpath.filename cases)
 
-let foo_files =
+let odocl_files =
   Gen_backend.lines_of_command "dune exec compile "
-    [ String.concat " " (List.map Fpath.to_string all_compile_files) ]
-
-let filtered_odocl_files =
-  List.filter
-    (fun f ->
-      match String.split_on_char '.' f with
-      | [ _; "odocl" ] -> true
-      | _ :: _ -> false
-      | [] -> false)
-    foo_files
+    [ String.concat " " (List.map Fpath.to_string cases_paths) ]
+  |> List.filter (fun f ->
+         match String.split_on_char '.' f with
+         | [ _; "odocl" ] -> true
+         | _ :: _ -> false
+         | [] -> false)
 
 let set_odocl_ext = Fpath.set_ext ".odocl"
 
@@ -85,7 +81,7 @@ let backends = [ html; latex; man ]
 let dep_atom p = Atom (Printf.sprintf "%%{dep:%s}" (Fpath.to_string p))
 
 let odocls backend =
-  List.map Fpath.v filtered_odocl_files
+  List.map Fpath.v odocl_files
   |> List.map (fun p ->
          let path = Fpath.relativize ~root:backend p in
          match path with Some p -> dep_atom p | None -> assert false)
