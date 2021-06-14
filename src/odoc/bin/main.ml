@@ -493,7 +493,8 @@ module Odoc_html = Make_renderer (struct
     Arg.(value & flag & info ~docs ~doc [ "flat" ])
 
   let extra_args =
-    let f semantic_uris closed_details indent theme_uri support_uri flat =
+    let f semantic_uris closed_details indent theme_uri support_uri flat
+        extra_suffix =
       {
         Html_page.semantic_uris;
         closed_details;
@@ -501,6 +502,7 @@ module Odoc_html = Make_renderer (struct
         support_uri;
         indent;
         flat;
+        extra_suffix;
       }
     in
     Term.(
