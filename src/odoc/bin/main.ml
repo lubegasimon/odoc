@@ -419,13 +419,6 @@ module Odoc_html = Make_renderer (struct
     in
     Arg.(value & flag (info ~doc [ "closed-details" ]))
 
-  let flat_output =
-    let doc =
-      "Output the resulting HTML files into one directory rather than a \
-       hierarchy"
-    in
-    Arg.(value & flag (info ~doc [ "flat" ]))
-
   let indent =
     let doc = "Format the output HTML files with indentation" in
     Arg.(value & flag (info ~doc [ "indent" ]))
@@ -577,8 +570,8 @@ module Odoc_latex = Make_renderer (struct
     Arg.(value & opt bool true & info ~docv:"BOOL" ~doc [ "with-children" ])
 
   let extra_args =
-    let f with_children = { Latex.with_children } in
-    Term.(const f $ with_children)
+    let f with_children flat = { Latex.with_children; flat } in
+    Term.(const f $ with_children $ flat_output)
 end)
 
 module Depends = struct
