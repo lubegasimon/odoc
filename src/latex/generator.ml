@@ -460,13 +460,18 @@ module Page = struct
     @@ List.map (subpage ~with_children ~flat ~extra_suffix)
     @@ Doctree.Subpages.compute i
 
-  and page ~with_children ~flat ~extra_suffix ({ Page.title = _; header; items = i; url } as p) =
+  and page ~with_children ~flat ~extra_suffix
+      ({ Page.title = _; header; items = i; url } as p) =
     let i = Doctree.Shift.compute ~on_sub i in
     let subpages = subpages ~with_children ~flat ~extra_suffix p in
     let header = items header in
     let content = items i in
-    let page = Doc.make ~with_children ~flat ~extra_suffix url (header @ content) subpages in
+    let page =
+      Doc.make ~with_children ~flat ~extra_suffix url (header @ content)
+        subpages
+    in
     page
 end
 
-let render ~with_children ~flat ~extra_suffix page = Page.page ~with_children ~flat ~extra_suffix page 
+let render ~with_children ~flat ~extra_suffix page =
+  Page.page ~with_children ~flat ~extra_suffix page

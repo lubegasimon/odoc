@@ -69,11 +69,10 @@ let extra_suffix =
 let extra_suffix =
   let doc =
     "Extra suffix to append to generated filenames. This is intended for \
-      expect tests to use."
+     expect tests to use."
   in
   let default = "" in
-  Arg.(
-    value & opt string default & info ~docv:"SUFFIX" ~doc [ "extra-suffix" ])
+  Arg.(value & opt string default & info ~docv:"SUFFIX" ~doc [ "extra-suffix" ])
 
 let warnings_options =
   let warn_error =
@@ -566,7 +565,7 @@ module Odoc_manpage = Make_renderer (struct
 
   let renderer = Man_page.renderer
 
-  let extra_args = 
+  let extra_args =
     let f flat extra_suffix = { Man_page.flat; extra_suffix } in
     Term.(const f $ flat_output $ extra_suffix)
 end)
@@ -581,7 +580,9 @@ module Odoc_latex = Make_renderer (struct
     Arg.(value & opt bool true & info ~docv:"BOOL" ~doc [ "with-children" ])
 
   let extra_args =
-    let f with_children flat extra_suffix = { Latex.with_children; flat; extra_suffix } in
+    let f with_children flat extra_suffix =
+      { Latex.with_children; flat; extra_suffix }
+    in
     Term.(const f $ with_children $ flat_output $ extra_suffix)
 end)
 
