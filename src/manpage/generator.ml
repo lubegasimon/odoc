@@ -6,7 +6,6 @@ open Doctree
 Manpages relies on the (g|t|n)roff document language.
 This language has a fairly long history
 (see https://en.wikipedia.org/wiki/Groff_(software)).
-
 Unfortunately, this language is very old and quite clunky.
 Most manpages relies on a set of high-level macros
 (http://man7.org/linux/man-pages/man7/groff_man.7.html)
@@ -14,21 +13,17 @@ that attempts to represent the semantic of common constructs in man pages. These
 macros are too constraining for the rich ocamldoc markup and
 their semantics are quite brittle, making them hard to use in a machine-output
 context.
-
 For these reason, we hit the low level commands directly:
 - http://man7.org/linux/man-pages/man7/groff.7.html
 - http://mandoc.bsd.lv/man/roff.7.html
-
 The downside of these commands is their poor translation to HTML, which we
 don't care about.
-
 In the roff language:
 1) newlines are not distinguished from other whitespace
 2) Successive whitespaces are ignored, except to trigger
    "end of sentence detection" for 2 or more successive whitespaces.
 3) Commands must start at the beginning of a line.
 4) Whitespaces separated by a macro are not treated as a single whitespace.
-
 For all these reasons, We use a concatenative API that will gobble up adjacent
 extra whitespaces and never output successive whitespaces at all.
 This makes the output much more consistent.
@@ -483,15 +478,12 @@ let page { Page.title; header; items = i; url } =
   ++ macro "SH" "Documentation" ++ vspace ++ macro "nf" ""
   ++ item ~nested:false i
 
-let rec subpage ~flat ~extra_suffix subp =
+let rec subpage subp =
   let p = subp.Subpage.content in
-  if Link.should_inline p.url then [] else [ render ~flat ~extra_suffix p ]
+  if Link.should_inline p.url then [] else [ render p ]
 
-and render ~flat ~extra_suffix (p : Page.t) =
+and render (p : Page.t) =
   let content ppf = Format.fprintf ppf "%a@." Roff.pp (page p) in
-  let children =
-    List.map (fun r -> subpage ~flat ~extra_suffix r) (Subpages.compute p)
-    |> List.concat
-  in
-  let filename = Link.as_filename ~flat p.url |> Fpath.add_ext extra_suffix in
+  let children = Utils.flatmap ~f:subpage @@ Subpages.compute p in
+  let filename = Link.as_filename p.url in
   { Renderer.filename; content; children }

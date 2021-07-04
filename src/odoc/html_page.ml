@@ -23,7 +23,6 @@ type args = {
   theme_uri : Odoc_html.Tree.uri;
   support_uri : Odoc_html.Tree.uri;
   flat : bool;
-  extra_suffix : string;
 }
 
 let render args page =
@@ -31,7 +30,8 @@ let render args page =
   Odoc_html.Tree.open_details := not args.closed_details;
   Odoc_html.Link.flat := args.flat;
   Odoc_html.Generator.render ~theme_uri:args.theme_uri
-    ~support_uri:args.support_uri ~indent:args.indent
-    ~extra_suffix:args.extra_suffix page
+    ~support_uri:args.support_uri ~indent:args.indent page
 
-let renderer = { Renderer.name = "html"; render }
+let files_of_url url = [ Odoc_html.Link.Path.as_filename url ]
+
+let renderer = { Renderer.name = "html"; render; files_of_url }

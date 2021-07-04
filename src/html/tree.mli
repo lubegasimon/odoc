@@ -23,7 +23,7 @@ type uri =
   | Absolute of string
   | Relative of Odoc_document.Url.Path.t option
       (** The type for absolute and relative URIs. The relative URIs are resolved
-    using the HTML output directory as a target. *)
+     using the HTML output directory as a target. *)
 
 (** {1 Page creator} *)
 
@@ -33,18 +33,17 @@ val make :
   indent:bool ->
   url:Url.Path.t ->
   header:Html_types.flow5_without_header_footer Html.elt list ->
-  extra_suffix:string ->
   toc:Html_types.flow5 Html.elt list ->
   string ->
   Html_types.div_content Html.elt list ->
   Renderer.page list ->
   Renderer.page
 (** [make ?theme_uri (body, children)] calls "the page creator" to turn [body]
-    into an [[ `Html ] elt]. If [theme_uri] is provided, it will be used to
-    locate the theme files, otherwise the HTML output directory is used. *)
+     into an [[ `Html ] elt]. If [theme_uri] is provided, it will be used to
+     locate the theme files, otherwise the HTML output directory is used. *)
 
 (* TODO: move to a centralized [State] module or something. Along with
    Relative_link.semantic_uris. *)
 val open_details : bool ref
 (** Whether [<details>] tags should be opened by default or not.
-    Default is [true]. *)
+     Default is [true]. *)

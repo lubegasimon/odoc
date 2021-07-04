@@ -4,7 +4,6 @@ val render :
   ?theme_uri:Tree.uri ->
   ?support_uri:Tree.uri ->
   indent:bool ->
-  extra_suffix:string ->
   Types.Page.t ->
   Renderer.page
 

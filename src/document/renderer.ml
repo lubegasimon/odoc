@@ -17,7 +17,11 @@ let traverse ~f t =
   in
   aux t
 
-type 'a t = { name : string; render : 'a -> Types.Page.t -> page }
+type 'a t = {
+  name : string;
+  render : 'a -> Types.Page.t -> page;
+  files_of_url : Url.Path.t -> Fpath.t list;
+}
 
 let document_of_page ~syntax v =
   match syntax with Reason -> Reason.page v | OCaml -> ML.page v

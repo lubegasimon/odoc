@@ -1,9 +1,7 @@
 open Odoc_document
 
-type args = { flat : bool; extra_suffix : string }
+let render _ page = Odoc_manpage.Generator.render page
 
-let render args page =
-  Odoc_manpage.Generator.render page ~flat:args.flat
-    ~extra_suffix:args.extra_suffix
+let files_of_url url = Odoc_manpage.Link.files_of_url url
 
-let renderer = { Renderer.name = "man"; render }
+let renderer = { Renderer.name = "man"; render; files_of_url }
