@@ -164,6 +164,7 @@ let expected_targets backend test_case =
 let expected_targets' backend test_case =
   expected_targets backend test_case |> List.map (fun t -> Atom (t ^ ".gen"))
 
+(*TODO: Improve this*)
 let gen_targets_file ?flat_flag backend target_path path =
   match flat_flag with
   | Some flat_flag ->
@@ -224,7 +225,7 @@ let gen_targets_file ?flat_flag backend target_path path =
             ];
         ]
 
-let target_diff_rule backend path =
+let target_diff_rule backend path ocaml_ver =
   let p = Fpath.( // ) backend path in
   List
     [
@@ -240,9 +241,15 @@ let target_diff_rule backend path =
               Atom Fpath.(to_string (p |> set_ext ".gen"));
             ];
         ];
+        List
+        [
+          Atom "enabled_if";
+          List [ Atom "<"; Atom "%{ocaml_version}"; Atom ocaml_ver];
+        ];
     ]
 
-let gen_and_diff_target_files_rules ?flat_flag backend paths =
+(*TODO: Improve this*)
+let gen_and_diff_target_files_rules ?flat_flag backend paths ocaml_ver =
   match flat_flag with
   | Some flat_flag ->
       List.map
@@ -253,7 +260,7 @@ let gen_and_diff_target_files_rules ?flat_flag backend paths =
               let p' = create_targets_file p in
               [
                 gen_targets_file ~flat_flag backend p' p;
-                target_diff_rule backend p';
+                target_diff_rule backend p' ocaml_ver;
               ]
           | None -> [])
         paths
@@ -265,7 +272,7 @@ let gen_and_diff_target_files_rules ?flat_flag backend paths =
           match path with
           | Some p ->
               let p' = create_targets_file p in
-              [ gen_targets_file backend p' p; target_diff_rule backend p' ]
+              [ gen_targets_file backend p' p; target_diff_rule backend p' ocaml_ver ]
           | None -> [])
         paths
       |> List.concat
@@ -292,7 +299,7 @@ let gen_backend_diff_rule (b_t_r, b, _) paths =
     (odocls b paths)
   |> List.concat
 
-let diff_rule backend t =
+let diff_rule backend t ocaml_ver =
   let t' = Fpath.( // ) backend t in
   List
     [
@@ -308,19 +315,19 @@ let diff_rule backend t =
               Atom (Fpath.to_string t' ^ ".gen");
             ];
         ];
-      (* List
+      List
          [
            Atom "enabled_if";
-           List [ Atom ">="; Atom "%{ocaml_version}"; Atom "4.10" ];
-         ]; *)
+           List [ Atom "<"; Atom "%{ocaml_version}"; Atom ocaml_ver];
+         ];
     ]
 
-let diff_rules backend paths =
+let diff_rules backend paths ocaml_ver =
   List.map
-    (fun t -> diff_rule backend t)
+    (fun t -> diff_rule backend t ocaml_ver)
     List.(map (expected_targets backend) paths |> concat |> map Fpath.v)
 
-let gen_backend_rule backend_target_rules paths =
+let gen_backend_rule backend_target_rules paths ocaml_ver =
   List.map
     (fun b_t_r ->
       let _, b, flag = b_t_r in
@@ -328,21 +335,21 @@ let gen_backend_rule backend_target_rules paths =
       | Some flat_flag ->
           [
             gen_backend_diff_rule b_t_r paths;
-            diff_rules b paths;
-            gen_and_diff_target_files_rules ~flat_flag b paths;
+            diff_rules b paths ocaml_ver;
+            gen_and_diff_target_files_rules ~flat_flag b paths ocaml_ver;
           ]
           |> List.concat
       | None ->
           [
             gen_backend_diff_rule b_t_r paths;
-            diff_rules b paths;
-            gen_and_diff_target_files_rules b paths;
+            diff_rules b paths ocaml_ver;
+            gen_and_diff_target_files_rules b paths ocaml_ver;
           ]
           |> List.concat)
     backend_target_rules
   |> List.flatten
 
-let gen_rule backend_target_rules paths =
+let gen_rule backend_target_rules paths ocaml_ver =
   let paths' =
     List.map
       (fun p ->
@@ -358,5 +365,5 @@ let gen_rule backend_target_rules paths =
   List.concat
     [
       List.(concat (map gen_rule_for_source_file paths));
-      gen_backend_rule backend_target_rules paths';
+      gen_backend_rule backend_target_rules paths' ocaml_ver;
     ]
